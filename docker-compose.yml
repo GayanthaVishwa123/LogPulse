@@ -1,0 +1,36 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: auth_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  redis:
+    image: redis:7
+    ports:
+      - '6379:6379'
+
+  auth-service:
+    build: ./services/auth-service
+    env_file:
+      - .env.example
+    ports:
+      - '8000:8000'
+    depends_on:
+      - postgres
+
+  processor-service:
+    build: ./services/processor-service
+    env_file:
+      - .env.example
+    depends_on:
+      - redis
+
+volumes:
+  postgres_data:
