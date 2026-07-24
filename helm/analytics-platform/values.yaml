@@ -1,0 +1,29 @@
+authService:
+  replicaCount: 1
+  image:
+    repository: auth-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    port: 8000
+
+processorService:
+  replicaCount: 1
+  image:
+    repository: processor-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    port: 8001
+
+postgres:
+  enabled: true
+  image: postgres:15
+  persistence:
+    storageClass: ""
+    accessMode: ReadWriteOnce
+    size: 5Gi
+
+redis:
+  enabled: true
+  image: redis:7
