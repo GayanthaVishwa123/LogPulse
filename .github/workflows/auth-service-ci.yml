@@ -1,0 +1,31 @@
+name: Auth Service CI
+
+on:
+  push:
+    paths:
+      - "services/auth-service/**"
+  pull_request:
+    paths:
+      - "services/auth-service/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r services/auth-service/requirements.txt
+      - name: Run tests
+        run: |
+          cd services/auth-service
+          pytest
+      - name: Build Docker image
+        run: |
+          docker build -t auth-service:ci ./services/auth-service
