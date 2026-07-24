@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: processor-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: processor-worker
+  template:
+    metadata:
+      labels:
+        app: processor-worker
+    spec:
+      containers:
+        - name: celery-worker
+          image: processor-service:latest
+          command:
+            [
+              "celery",
+              "-A",
+              "app.core.celery_app.celery_app",
+              "worker",
+              "--loglevel=info",
+            ]
+          env:
+            - name: BROKER_URL
+              value: redis://redis:6379/0
+            - name: RESULT_BACKEND
+              value: redis://redis:6379/1
