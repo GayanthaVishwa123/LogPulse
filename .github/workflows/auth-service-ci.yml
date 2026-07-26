@@ -27,7 +27,7 @@ jobs:
       - name: Run tests
         run: |
           cd services/auth-service
-          pytest
+          python3 -m pytest
       - name: Build Docker image
         run: |
           docker build -t auth-service:ci ./services/auth-service
