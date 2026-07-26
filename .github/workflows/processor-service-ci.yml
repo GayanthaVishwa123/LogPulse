@@ -3,12 +3,12 @@ name: Processor Service CI
 on:
   push:
     paths:
-      - "services/processor-service/**"
-      - "!services/auth-service/README.md"
+      - "logpulse_backend/scripts/services/processor-service/**"
+      - "!logpulse_backend/scripts/services/processor-service/README.md"
   pull_request:
     paths:
-      - "services/processor-service/**"
-      - "!services/auth-service/README.md"
+      - "logpulse_backend/scripts/services/processor-service/**"
+      - "!logpulse_backend/scripts/services/processor-service/README.md"
 
 jobs:
   build:
@@ -23,11 +23,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r services/processor-service/requirements.txt
+          pip install -r logpulse_backend/scripts/services/processor-service/requirements.txt
       - name: Run tests
         run: |
-          cd services/processor-service
+          cd logpulse_backend/scripts/services/processor-service
           python3 -m pytest tests
       - name: Build Docker image
         run: |
-          docker build -t processor-service:ci ./services/processor-service
+          docker build -t processor-service:ci ./logpulse_backend/scripts/services/processor-service
