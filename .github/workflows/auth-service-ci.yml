@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - "services/auth-service/**"
+      - "!services/auth-service/README.md"
   pull_request:
     paths:
       - "services/auth-service/**"
+      - "!services/auth-service/README.md"
 
 jobs:
   build:
