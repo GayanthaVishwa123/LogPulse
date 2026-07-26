@@ -1,43 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { Search, Activity, ShieldCheck, Zap, Database, CircleDot } from "lucide-react";
-
-const logSamples = [
-  {
-    id: 1,
-    timestamp: "2026-07-24 12:18:43",
-    level: "INFO",
-    service: "auth-service",
-    message: "User login succeeded for user@example.com",
-  },
-  {
-    id: 2,
-    timestamp: "2026-07-24 12:18:44",
-    level: "WARN",
-    service: "processor-service",
-    message: "Event batch delayed by 120ms due to queue throttling.",
-  },
-  {
-    id: 3,
-    timestamp: "2026-07-24 12:18:46",
-    level: "ERROR",
-    service: "auth-service",
-    message: "Failed JWT validation for token request from /api/v1/auth/refresh.",
-  },
-  {
-    id: 4,
-    timestamp: "2026-07-24 12:18:49",
-    level: "INFO",
-    service: "processor-service",
-    message: "Log normalization pipeline completed for incoming payload.",
-  },
-  {
-    id: 5,
-    timestamp: "2026-07-24 12:18:52",
-    level: "INFO",
-    service: "auth-service",
-    message: "New user registered and verification email queued.",
-  },
-];
+import React, { useMemo, useState, useEffect } from "react";
+import { Search, Activity, ShieldCheck, Zap, Database, CircleDot, RefreshCw } from "lucide-react";
 
 const levelVariants = {
   INFO: "bg-emerald-500/10 text-emerald-300 border border-emerald-500/30",
@@ -45,12 +7,46 @@ const levelVariants = {
   ERROR: "bg-rose-500/10 text-rose-300 border border-rose-500/30",
 };
 
-function LogPulseDashboard() {
-  const [query, setQuery] = useState("");
+// 💡 Backend Processor Service URL (Port 8001)
+const API_BASE_URL = "http://localhost:8001";
 
+function LogPulseDashboard() {
+  const [logs, setLogs] = useState([]);
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // 1. Fetch logs from FastAPI Backend
+  const fetchLogs = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/logs`);
+      if (!response.ok) {
+        throw new Error("Failed to connect to Processor Service");
+      }
+      const data = await response.json();
+      setLogs(data);
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching logs:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 2. Initial Fetch & Auto Polling (Every 3 Seconds)
+  useEffect(() => {
+    fetchLogs();
+
+    // Live stream එකක් වගේ 3s වලින් auto-refresh වෙන්න:
+    const interval = setInterval(fetchLogs, 3000);
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, []);
+
+  // 3. Filtered Logs Logic
   const filteredLogs = useMemo(
     () =>
-      logSamples.filter((log) => {
+      logs.filter((log) => {
         const keyword = query.toLowerCase();
         return (
           log.message.toLowerCase().includes(keyword) ||
@@ -58,7 +54,7 @@ function LogPulseDashboard() {
           log.level.toLowerCase().includes(keyword)
         );
       }),
-    [query]
+    [logs, query]
   );
 
   return (
@@ -82,8 +78,10 @@ function LogPulseDashboard() {
             </div>
 
             <div className="inline-flex items-center gap-3 rounded-3xl border border-slate-800/90 bg-slate-950 px-4 py-3 text-slate-100 shadow-sm shadow-slate-950/20">
-              <span className="flex h-3.5 w-3.5 animate-pulse rounded-full bg-emerald-400 shadow-xl shadow-emerald-500/30"></span>
-              <span className="text-sm font-medium text-emerald-300">K8s Cluster: Healthy</span>
+              <span className={`flex h-3.5 w-3.5 rounded-full ${error ? "bg-rose-500" : "animate-pulse bg-emerald-400"}`}></span>
+              <span className={`text-sm font-medium ${error ? "text-rose-300" : "text-emerald-300"}`}>
+                {error ? "Backend Down" : "K8s Cluster: Healthy"}
+              </span>
             </div>
           </div>
         </header>
@@ -139,23 +137,40 @@ function LogPulseDashboard() {
               <span className="text-xs uppercase tracking-[0.24em]">Service</span>
               <span className="text-xs uppercase tracking-[0.24em]">Message</span>
             </div>
+
             <div className="max-h-[520px] space-y-2 overflow-y-auto px-6 py-5">
-              {filteredLogs.map((log) => (
-                <div
-                  key={log.id}
-                  className="log-row"
-                >
+              {/* Loading State */}
+              {loading && logs.length === 0 && (
+                <div className="flex items-center justify-center py-10 text-slate-400 gap-2">
+                  <RefreshCw className="h-5 w-5 animate-spin text-indigo-400" />
+                  <span>Loading logs from cluster...</span>
+                </div>
+              )}
+
+              {/* Error State */}
+              {error && (
+                <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-center text-rose-300 text-sm">
+                  {error} - Make sure FastAPI processor-service is running on port 8001.
+                </div>
+              )}
+
+              {/* Log List */}
+              {!loading && !error && filteredLogs.map((log) => (
+                <div key={log.id} className="log-row">
                   <div className="text-slate-400">{log.timestamp}</div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`status-pill ${levelVariants[log.level]}`}>
+                    <span className={`status-pill ${levelVariants[log.level] || levelVariants.INFO}`}>
                       {log.level}
                     </span>
-                    <span className="rounded-full bg-slate-950/80 px-2 py-1 text-xs text-slate-300">{log.service}</span>
+                    <span className="rounded-full bg-slate-950/80 px-2 py-1 text-xs text-slate-300">
+                      {log.service}
+                    </span>
                   </div>
                   <div className="text-slate-300">{log.message}</div>
                 </div>
               ))}
-              {filteredLogs.length === 0 && (
+
+              {!loading && !error && filteredLogs.length === 0 && (
                 <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-900/80 px-6 py-10 text-center text-slate-500">
                   No logs match your search filter.
                 </div>
