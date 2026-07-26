@@ -40,7 +40,7 @@ class LogIngestSchema(BaseModel):
 # Healthcheck Endpoint
 @app.get("/healthz", status_code=status.HTTP_200_OK)
 def healthz():
-    return {"status": "ok", "service": "processor-service"}
+    return {"status": "ok"}
 
 
 # Ingest Log Endpoint
