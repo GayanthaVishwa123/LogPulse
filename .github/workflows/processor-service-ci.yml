@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - "services/processor-service/**"
+      - "!services/auth-service/README.md"
   pull_request:
     paths:
       - "services/processor-service/**"
+      - "!services/auth-service/README.md"
 
 jobs:
   build:
@@ -25,7 +27,7 @@ jobs:
       - name: Run tests
         run: |
           cd services/processor-service
-          pytest
+          python3 -m pytest tests
       - name: Build Docker image
         run: |
           docker build -t processor-service:ci ./services/processor-service
