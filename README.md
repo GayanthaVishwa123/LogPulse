@@ -10,11 +10,11 @@ LogPulse is a lightweight log processing and authentication platform designed fo
 
 ## Repository Structure
 
-- `services/auth-service/`: authentication API, database, and user models.
-- `services/processor-service/`: log processor, Celery tasks, and worker config.
+- `logpulse_backend/scripts/services/auth-service/`: authentication API, database, and user models.
+- `logpulse_backend/scripts/services/processor-service/`: log processor, Celery tasks, and worker config.
 - `frontend/`: React frontend app.
 - `docker-compose.yml`: local service orchestration.
-- `scripts/run-local.sh`: helper script to launch the local environment.
+- `logpulse_backend/scripts/run-local.sh`: helper script to launch the local environment.
 - `.env.example`: example environment variables for both services.
 
 ## Architecture
@@ -22,8 +22,8 @@ LogPulse is a lightweight log processing and authentication platform designed fo
 LogPulse is organized as a small containerized microservice platform:
 
 - **Frontend**: Vite + React UI in `frontend/`.
-- **Auth Service**: FastAPI service in `services/auth-service/` using PostgreSQL for user/auth data.
-- **Processor Service**: FastAPI + Celery service in `services/processor-service/` using Redis for task queuing and results.
+- **Auth Service**: FastAPI service in `logpulse_backend/scripts/services/auth-service/` using PostgreSQL for user/auth data.
+- **Processor Service**: FastAPI + Celery service in `logpulse_backend/scripts/services/processor-service/` using Redis for task queuing and results.
 - **Infrastructure**: `docker-compose.yml` for local stacks, `k8s/` manifests for Kubernetes base services, and `helm/` for deployment packaging.
 
 The services communicate via standard HTTP APIs and share infrastructure resources like PostgreSQL and Redis.
@@ -45,7 +45,7 @@ cp .env.example .env
 2. Start the stack:
 
 ```bash
-./scripts/run-local.sh
+./logpulse_backend/scripts/run-local.sh
 ```
 
 3. Open the services:
@@ -57,14 +57,14 @@ cp .env.example .env
 
 ### Auth Service
 
-- Build context: `services/auth-service`
+- Build context: `logpulse_backend/scripts/services/auth-service`
 - Ports: `8000:8000`
 - Database: `postgres`
 - Main frameworks: FastAPI, SQLAlchemy, asyncpg, PyJWT
 
 ### Processor Service
 
-- Build context: `services/processor-service`
+- Build context: `logpulse_backend/scripts/services/processor-service`
 - Depends on: `redis`
 - Worker backend: Celery with Redis broker and result backend
 
@@ -93,12 +93,12 @@ The local compose stack includes:
 Each service includes its own tests. Run them from the service folder, for example:
 
 ```bash
-cd services/auth-service
+cd logpulse_backend/scripts/services/auth-service
 pytest
 ```
 
 ```bash
-cd services/processor-service
+cd logpulse_backend/scripts/services/processor-service
 pytest
 ```
 
@@ -115,14 +115,14 @@ npm run build
 - Run backend auth service locally (without Docker):
 
 ```bash
-cd services/auth-service
+cd logpulse_backend/scripts/services/auth-service
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 - Run processor service locally:
 
 ```bash
-cd services/processor-service
+cd logpulse_backend/scripts/services/processor-service
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
 ```
 

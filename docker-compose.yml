@@ -17,7 +17,7 @@ services:
       - '6379:6379'
 
   auth-service:
-    build: ./services/auth-service
+    build: ./logpulse_backend/scripts/services/auth-service
     env_file:
       - .env.example
     ports:
@@ -26,7 +26,7 @@ services:
       - postgres
 
   processor-service:
-    build: ./services/processor-service
+    build: ./logpulse_backend/scripts/services/processor-service
     env_file:
       - .env.example
     depends_on:
