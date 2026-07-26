@@ -19,3 +19,6 @@ dist/
 # IDE files
 .vscode/
 .idea/
+
+node_modules/
+frontend/node_modules/
