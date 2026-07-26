@@ -3,10 +3,12 @@ name: Auth Service CI
 on:
   push:
     paths:
+      - ".github/workflows/auth-service-ci.yml"
       - "logpulse_backend/scripts/services/auth-service/**"
       - "!logpulse_backend/scripts/services/auth-service/README.md"
   pull_request:
     paths:
+      - ".github/workflows/auth-service-ci.yml"
       - "logpulse_backend/scripts/services/auth-service/**"
       - "!logpulse_backend/scripts/services/auth-service/README.md"
 

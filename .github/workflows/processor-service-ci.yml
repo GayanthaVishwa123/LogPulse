@@ -3,10 +3,12 @@ name: Processor Service CI
 on:
   push:
     paths:
+      - ".github/workflows/processor-service-ci.yml"
       - "logpulse_backend/scripts/services/processor-service/**"
       - "!logpulse_backend/scripts/services/processor-service/README.md"
   pull_request:
     paths:
+      - ".github/workflows/processor-service-ci.yml"
       - "logpulse_backend/scripts/services/processor-service/**"
       - "!logpulse_backend/scripts/services/processor-service/README.md"
 
