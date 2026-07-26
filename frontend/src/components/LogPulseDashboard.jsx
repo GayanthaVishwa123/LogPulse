@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Search, Activity, ShieldCheck, Zap, Database, CircleDot } from "lucide-react";
 
 const logSamples = [
