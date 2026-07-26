@@ -23,11 +23,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r logpulse_backend/scripts/services/auth-service/requirements.txt
+          pip install -r "$GITHUB_WORKSPACE/logpulse_backend/scripts/services/auth-service/requirements.txt"
       - name: Run tests
         run: |
-          cd logpulse_backend/scripts/services/auth-service
+          cd "$GITHUB_WORKSPACE/logpulse_backend/scripts/services/auth-service"
           python3 -m pytest
       - name: Build Docker image
         run: |
-          docker build -t auth-service:ci ./logpulse_backend/scripts/services/auth-service
+          docker build -t auth-service:ci "$GITHUB_WORKSPACE/logpulse_backend/scripts/services/auth-service"
