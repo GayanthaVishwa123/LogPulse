@@ -5,9 +5,79 @@
 :root {
   color-scheme: dark;
   background-color: #020617;
+  color: #f8fafc;
+  --surface: rgba(15, 23, 42, 0.94);
+  --surface-strong: rgba(15, 23, 42, 0.98);
+  --surface-soft: rgba(15, 23, 42, 0.78);
+  --border: rgba(148, 163, 184, 0.16);
+  --accent: #818cf8;
+  --accent-soft: rgba(129, 140, 248, 0.18);
+  --text-muted: #94a3b8;
+  --shadow: 0 30px 80px rgba(15, 23, 42, 0.45);
+}
+
+html {
+  min-height: 100%;
 }
 
 body {
+  min-height: 100%;
   @apply bg-slate-950 text-slate-100 antialiased;
+  background-image:
+    radial-gradient(circle at top left, rgba(129, 140, 248, 0.22), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.16), transparent 25%),
+    linear-gradient(160deg, #020617 0%, #0f172a 55%, #020617 100%);
+  background-size: cover;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background-color: rgba(129, 140, 248, 0.35);
+  color: #f8fafc;
+}
+
+@layer components {
+  .app-shell {
+    @apply min-h-screen px-4 py-8 sm:px-6 lg:px-10;
+  }
+
+  .app-container {
+    @apply mx-auto max-w-7xl space-y-8;
+  }
+
+  .card {
+    @apply rounded-3xl border border-slate-800/90 bg-slate-900/95 shadow-2xl shadow-slate-950/30 backdrop-blur-xl;
+  }
+
+  .card-hero {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.86));
+  }
+
+  .card-panel {
+    @apply p-6;
+  }
+
+  .search-input {
+    @apply w-full rounded-2xl border border-slate-800/80 bg-slate-950/90 py-3 pl-11 pr-4 text-slate-100 placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20;
+  }
+
+  .metric-card {
+    @apply rounded-3xl border border-slate-800/90 bg-slate-900/95 p-5 shadow-xl shadow-slate-950/20 transition-transform duration-200 ease-out hover:-translate-y-0.5 hover:border-indigo-500/20 hover:bg-slate-900;
+  }
+
+  .log-table-header {
+    @apply min-w-full grid gap-4 border-b border-slate-800/90 bg-slate-900 px-6 py-4 text-slate-400 sm:grid-cols-[220px_120px_1fr];
+  }
+
+  .log-row {
+    @apply min-w-full grid gap-4 rounded-3xl border border-slate-800/80 bg-slate-900/90 px-4 py-4 text-sm text-slate-200 shadow-sm shadow-slate-950/20 sm:grid-cols-[220px_140px_1fr];
+  }
+
+  .status-pill {
+    @apply rounded-full px-3 py-1 text-xs font-semibold;
+  }
 }

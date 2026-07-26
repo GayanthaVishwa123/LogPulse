@@ -62,9 +62,9 @@ function LogPulseDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-950 px-4 py-8 sm:px-6 lg:px-10">
-      <div className="mx-auto max-w-7xl space-y-8">
-        <header className="rounded-3xl border border-slate-800/90 bg-slate-900/95 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
+    <div className="app-shell">
+      <div className="app-container">
+        <header className="card card-hero p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-slate-300">
@@ -115,7 +115,7 @@ function LogPulseDashboard() {
           />
         </section>
 
-        <main className="rounded-3xl border border-slate-800/90 bg-slate-900/95 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
+        <main className="card card-panel">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Live Event Stream</p>
@@ -128,13 +128,13 @@ function LogPulseDashboard() {
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search logs, services, or levels"
-                className="w-full rounded-2xl border border-slate-800/80 bg-slate-950/90 py-3 pl-11 pr-4 text-slate-100 placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="search-input"
               />
             </div>
           </div>
 
           <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-950/80 shadow-inner shadow-slate-950/20">
-            <div className="grid min-w-full grid-cols-[200px_100px_1fr] gap-4 border-b border-slate-800/90 bg-slate-900 px-6 py-4 text-slate-400 sm:grid-cols-[220px_120px_1fr]">
+            <div className="log-table-header">
               <span className="text-xs uppercase tracking-[0.24em]">Timestamp</span>
               <span className="text-xs uppercase tracking-[0.24em]">Service</span>
               <span className="text-xs uppercase tracking-[0.24em]">Message</span>
@@ -143,11 +143,11 @@ function LogPulseDashboard() {
               {filteredLogs.map((log) => (
                 <div
                   key={log.id}
-                  className="grid min-w-full grid-cols-[200px_120px_1fr] gap-4 rounded-3xl border border-slate-800/80 bg-slate-900/90 px-4 py-4 text-sm text-slate-200 shadow-sm shadow-slate-950/20 sm:grid-cols-[220px_140px_1fr]"
+                  className="log-row"
                 >
                   <div className="text-slate-400">{log.timestamp}</div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${levelVariants[log.level]}`}>
+                    <span className={`status-pill ${levelVariants[log.level]}`}>
                       {log.level}
                     </span>
                     <span className="rounded-full bg-slate-950/80 px-2 py-1 text-xs text-slate-300">{log.service}</span>
@@ -170,7 +170,7 @@ function LogPulseDashboard() {
 
 function MetricCard({ icon, title, value, description }) {
   return (
-    <div className="rounded-3xl border border-slate-800/90 bg-slate-900/95 p-5 shadow-xl shadow-slate-950/20 transition hover:-translate-y-0.5 hover:border-indigo-500/20 hover:bg-slate-900">
+    <div className="metric-card">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-950 text-indigo-300 shadow-inner shadow-indigo-500/10">
