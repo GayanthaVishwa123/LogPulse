@@ -17,6 +17,17 @@ LogPulse is a lightweight log processing and authentication platform designed fo
 - `scripts/run-local.sh`: helper script to launch the local environment.
 - `.env.example`: example environment variables for both services.
 
+## Architecture
+
+LogPulse is organized as a small containerized microservice platform:
+
+- **Frontend**: Vite + React UI in `frontend/`.
+- **Auth Service**: FastAPI service in `services/auth-service/` using PostgreSQL for user/auth data.
+- **Processor Service**: FastAPI + Celery service in `services/processor-service/` using Redis for task queuing and results.
+- **Infrastructure**: `docker-compose.yml` for local stacks, `k8s/` manifests for Kubernetes base services, and `helm/` for deployment packaging.
+
+The services communicate via standard HTTP APIs and share infrastructure resources like PostgreSQL and Redis.
+
 ## Prerequisites
 
 - Docker
