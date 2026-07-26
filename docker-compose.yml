@@ -18,6 +18,8 @@ services:
 
   auth-service:
     build: ./logpulse_backend/scripts/services/auth-service
+    environment:
+      - PYTHONPATH=/app
     env_file:
       - .env.example
     ports:
@@ -27,6 +29,8 @@ services:
 
   processor-service:
     build: ./logpulse_backend/scripts/services/processor-service
+    environment:
+      - PYTHONPATH=/app
     env_file:
       - .env.example
     depends_on:
