@@ -1,3 +1,4 @@
+import React from "react";
 import LogPulseDashboard from "./components/LogPulseDashboard";
 
 function App() {
