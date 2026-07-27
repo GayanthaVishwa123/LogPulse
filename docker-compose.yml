@@ -52,6 +52,7 @@ services:
       - PYTHONPATH=/app
       - BROKER_URL=redis://redis:6379/0
       - RESULT_BACKEND=redis://redis:6379/0
+      - DATABASE_URL=postgresql://auth_user:password@postgres:5432/auth_db
     env_file:
       - .env.example
     ports:
@@ -59,21 +60,27 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+      postgres:
+        condition: service_healthy
 
   celery-worker:
     build:
       context: ./logpulse_backend/scripts/services/processor-service
       dockerfile: Dockerfile
     container_name: logpulse-celery-worker
-    command: celery -A app.core.celery_app worker --loglevel=info
+    # 💡 -I app.tasks එකතු කළා, celery_app instance එක exact විදියට දුන්නා
+    command: celery -A app.core.celery_app.celery_app worker -I app.tasks --loglevel=info
     environment:
       - PYTHONPATH=/app
       - BROKER_URL=redis://redis:6379/0
       - RESULT_BACKEND=redis://redis:6379/0
+      - DATABASE_URL=postgresql://auth_user:password@postgres:5432/auth_db
     env_file:
       - .env.example
     depends_on:
       redis:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
       processor-service:
         condition: service_started
