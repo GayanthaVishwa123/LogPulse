@@ -1,132 +1,149 @@
 # LogPulse
 
-LogPulse is a lightweight log processing and authentication platform designed for local development with Docker Compose. It provides:
+LogPulse is a lightweight log ingestion and authentication platform targeted for local development and experimentation. It is organized as small containerized services that demonstrate an auth API, an asynchronous log processor (Celery), and a React frontend.
 
-- **Auth Service**: a FastAPI service handling authentication and user management.
-- **Processor Service**: a FastAPI + Celery service for processing logs asynchronously.
-- **PostgreSQL**: persistent auth database storage.
-- **Redis**: Celery broker and result backend.
-- **Frontend**: Vite + React UI using Tailwind CSS.
+Key components:
 
-## Repository Structure
+- Auth Service — FastAPI-based API for user management and authentication.
+- Processor Service — FastAPI + Celery workers for asynchronous log processing.
+- PostgreSQL — persistent store for auth data.
+- Redis — Celery broker and result backend.
+- Frontend — Vite + React UI (Tailwind CSS used in the project).
 
-- `logpulse_backend/scripts/services/auth-service/`: authentication API, database, and user models.
-- `logpulse_backend/scripts/services/processor-service/`: log processor, Celery tasks, and worker config.
-- `frontend/`: React frontend app.
-- `docker-compose.yml`: local service orchestration.
-- `logpulse_backend/scripts/run-local.sh`: helper script to launch the local environment.
-- `.env.example`: example environment variables for both services.
+Repository layout
 
-## Architecture
+- `logpulse_backend/scripts/services/auth-service/` — authentication API, DB models, tests.
+- `logpulse_backend/scripts/services/processor-service/` — processor API, Celery tasks, worker config.
+- `frontend/` — React app (Vite).
+- `docker-compose.yml` — local composition of services for development.
+- `logpulse_backend/scripts/run-local.sh` — helper script that runs `docker-compose up --build`.
+- `.env.example` — environment variable examples used by the services.
 
-LogPulse is organized as a small containerized microservice platform:
+Quick start (recommended)
 
-- **Frontend**: Vite + React UI in `frontend/`.
-- **Auth Service**: FastAPI service in `logpulse_backend/scripts/services/auth-service/` using PostgreSQL for user/auth data.
-- **Processor Service**: FastAPI + Celery service in `logpulse_backend/scripts/services/processor-service/` using Redis for task queuing and results.
-- **Infrastructure**: `docker-compose.yml` for local stacks, `k8s/` manifests for Kubernetes base services, and `helm/` for deployment packaging.
-
-The services communicate via standard HTTP APIs and share infrastructure resources like PostgreSQL and Redis.
-
-## Prerequisites
-
-- Docker
-- Docker Compose
-- Git
-
-## Local Development
-
-1. Copy environment variables:
+1. Copy the example env file and edit required values:
 
 ```bash
 cp .env.example .env
+# Edit .env and set realistic values. Example:
+# AUTH_DATABASE_URL=postgresql://auth_user:password@postgres:5432/auth_db
+# PROCESSOR_BROKER_URL=redis://redis:6379/0
+# PROCESSOR_RESULT_BACKEND=redis://redis:6379/1
 ```
 
-2. Start the stack:
+Note: `.env.example` contains placeholder/masked DB URLs; replace them with correct values before starting.
+
+2. Start the full local stack (requires Docker & Docker Compose):
 
 ```bash
 ./logpulse_backend/scripts/run-local.sh
+# or
+docker-compose up --build
 ```
 
-3. Open the services:
+3. After services are healthy, open:
 
-- Auth service: `http://localhost:8000`
-- Frontend: configure via `frontend` dev server if enabled separately
+- Auth API (FastAPI): http://localhost:8000
+- Processor API (if exposed): http://localhost:8001
+- Frontend: run the frontend dev server (see below) or use a built build.
 
-## Services
+Frontend development
 
-### Auth Service
-
-- Build context: `logpulse_backend/scripts/services/auth-service`
-- Ports: `8000:8000`
-- Database: `postgres`
-- Main frameworks: FastAPI, SQLAlchemy, asyncpg, PyJWT
-
-### Processor Service
-
-- Build context: `logpulse_backend/scripts/services/processor-service`
-- Depends on: `redis`
-- Worker backend: Celery with Redis broker and result backend
-
-## Environment Variables
-
-The project uses `.env.example` for configuration:
-
-- `AUTH_DATABASE_URL`: PostgreSQL database URL for auth service
-- `AUTH_JWT_SECRET`: JWT signing secret
-- `AUTH_ACCESS_TOKEN_EXPIRE_MINUTES`: token expiration
-- `PROCESSOR_BROKER_URL`: Redis broker URL for Celery
-- `PROCESSOR_RESULT_BACKEND`: Redis backend URL for Celery results
-- `LOG_LEVEL`: application log level
-
-## Docker Compose
-
-The local compose stack includes:
-
-- `postgres`: Postgres 15 for auth storage
-- `redis`: Redis 7 for Celery broker
-- `auth-service`: app service for authentication
-- `processor-service`: Celery processor service
-
-## Running Tests
-
-Each service includes its own tests. Run them from the service folder, for example:
+To run the frontend dev server (recommended while developing UI):
 
 ```bash
-cd logpulse_backend/scripts/services/auth-service
-pytest
+cd frontend
+npm install
+npm run dev
+# dev server typically runs on http://localhost:5173 (check output)
 ```
 
-```bash
-cd logpulse_backend/scripts/services/processor-service
-pytest
-```
-
-## Useful Commands
-
-- Build frontend:
+To build a production bundle:
 
 ```bash
 cd frontend
 npm install
 npm run build
+npm run preview
 ```
 
-- Run backend auth service locally (without Docker):
+Running services without Docker (local Python development)
+
+1. Create and activate a virtual environment and install deps for the service:
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate
 cd logpulse_backend/scripts/services/auth-service
+pip install -r requirements.txt
+```
+
+2. Set the same environment variables from `.env` (or export them) and run:
+
+```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-- Run processor service locally:
+Processor/Celery worker (local)
+
+When running locally (without Docker), install the processor requirements and start a worker using the same app entrypoint used in compose:
 
 ```bash
 cd logpulse_backend/scripts/services/processor-service
+pip install -r requirements.txt
+# start api
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
+# in another terminal start worker (example used in compose):
+celery -A app.core.celery_app.celery_app worker -I app.tasks --loglevel=info
 ```
 
-## Notes
+Environment variables (summary)
 
-- The frontend currently uses Vite and React; its dev server can be launched from `frontend/`.
-- Ensure `.env` is present and updated before starting the services.
+- AUTH_DATABASE_URL — full SQLAlchemy/Postgres URL for the auth DB (example: postgresql://auth_user:password@postgres:5432/auth_db)
+- AUTH_JWT_SECRET — secret used to sign JWTs
+- AUTH_ACCESS_TOKEN_EXPIRE_MINUTES — token TTL in minutes
+- PROCESSOR_BROKER_URL — Redis broker (e.g. redis://redis:6379/0)
+- PROCESSOR_RESULT_BACKEND — Redis result backend (e.g. redis://redis:6379/1)
+- LOG_LEVEL — logging level (info, debug, etc.)
+
+Docker Compose notes
+
+- Services defined in `docker-compose.yml` include `postgres` (5432), `redis` (6379), `auth-service` (8000), `processor-service` (8001) and a `celery-worker` service.
+- If host ports 5432 or 6379 are already used on your machine, update `docker-compose.yml` or stop the conflicting services.
+
+Running tests
+
+Each service contains tests runnable with pytest. Example:
+
+```bash
+cd logpulse_backend/scripts/services/auth-service
+pytest
+```
+
+```bash
+cd logpulse_backend/scripts/services/processor-service
+pytest
+```
+
+Troubleshooting
+
+- If the services fail to start, check docker-compose logs:
+
+```bash
+docker-compose logs -f
+```
+
+- Ensure `.env` contains valid DB/Redis URLs. The example file uses masked placeholders that must be replaced.
+
+Further documentation
+
+- See [LOGPULSE_STRUCTURE.md](/home/gayantha/LogPulse/LOGPULSE_STRUCTURE.md) for an overview of the code layout.
+- See [INFRASTRUCTURE.md](/home/gayantha/LogPulse/INFRASTRUCTURE.md) for deployment/infrastructure notes.
+
+Contributing & Issues
+
+Please open issues on the repository for bugs, feature requests or setup problems.
+
+License
+
+This project is available under the terms of the LICENSE file in the repository.
